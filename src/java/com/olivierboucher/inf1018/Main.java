@@ -41,13 +41,21 @@ public class Main {
         Lexer lexer = new Lexer(file);
 
         //NOTE(Olivier): This is for debugging purposes
-        List<Lexer.Token> tokens = lexer.getAllTokens()
-                .stream()
-                .filter((Lexer.Token t) -> t.type != Lexer.TokenType.WHITESPACE)
-                .collect(Collectors.toList());
+        List<Lexer.Token> tokens = null;
+        try {
+            tokens = lexer.getAllTokens()
+                    .stream()
+                    .filter((Lexer.Token t) -> t.type != Lexer.TokenType.WHITESPACE)
+                    .collect(Collectors.toList());
 
-        System.out.println(String.format("Got %d tokens", tokens.size()));
+            System.out.println(String.format("Got %d tokens", tokens.size()));
 
-        tokens.forEach(System.out::println);
+            tokens.forEach(System.out::println);
+        }
+        catch (Lexer.LexerException e) {
+            for(Lexer.LexerError err : e.getErrors()) {
+                System.out.println(String.format("Unexpected token at index %d to %d", err.getStartIndex(), err.getEndIndex()));
+            }
+        }
     }
 }

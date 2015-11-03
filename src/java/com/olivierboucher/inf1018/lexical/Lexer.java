@@ -48,8 +48,39 @@ public class Lexer {
         }
     }
 
+    public class LexerException extends Exception {
+        private List<LexerError> errors;
+        public LexerException(List<LexerError> errors) {
+            this.errors = errors;
+        }
+
+        public List<LexerError> getErrors() {
+            return errors;
+        }
+    }
+
+    public class LexerError {
+        private int startIndex;
+        private int endIndex;
+
+        public LexerError(int startIndex, int endIndex) {
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+        }
+
+        public int getStartIndex() {
+            return startIndex;
+        }
+
+        public int getEndIndex() {
+            return endIndex;
+        }
+    }
+
+
     private Scanner scanner;
     private Pattern tokensPattern;
+    private int lastResultEndIndex = 0;
 
     public Lexer(File file){
         StringBuilder sb = new StringBuilder();
@@ -68,9 +99,10 @@ public class Lexer {
         }
     }
 
-    public List<Token> getNextTokens(int amount){
+    public List<Token> getNextTokens(int amount) throws LexerException{
 
         ArrayList<Token> tokens = new ArrayList<>();
+        ArrayList<LexerError> errors = new ArrayList<>();
 
         String result = "";
 
@@ -78,24 +110,32 @@ public class Lexer {
             result = scanner.findWithinHorizon(tokensPattern, 0);
             if(result != null) {
                 MatchResult match = scanner.match();
-
                 //NOTE(Olivier): Important to start at 1 because 0 is full string
                 //NOTE(Olivier): That implies <=
                 for(int i = 1; i <= TokenType.values().length; i++) {
-                    if(match.start(i) != -1) {
+                    int startIndex = match.start(i);
+                    if( startIndex != -1) {
+                        //NOTE(Olivier): Let's verify we don't skip any content
+                        if (startIndex != lastResultEndIndex) {
+                            errors.add(new LexerError(lastResultEndIndex, startIndex));
+                        }
                         //NOTE(Olivier): The previous also implies i-1
                         Token token = new Token(TokenType.values()[i-1], result);
                         tokens.add(token);
+                        lastResultEndIndex = match.end(i);
                         break;
                     }
                 }
             }
+            //NOTE(Olivier): If we encountered any errors, we throw them
+            if(errors.size() > 0) {
+                throw new LexerException(errors);
+            }
         }
-
         return tokens;
     }
 
-    public List<Token> getAllTokens(){
+    public List<Token> getAllTokens() throws LexerException {
         return getNextTokens(-1);
     }
 }
