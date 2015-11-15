@@ -12,4 +12,9 @@ public class LexerException extends Exception {
     public LexerError getError() {
         return error;
     }
+
+    @Override
+    public String getMessage() {
+        return String.format("Unexpected token from index %d to %d", error.getStartIndex(), error.getEndIndex());
+    }
 }

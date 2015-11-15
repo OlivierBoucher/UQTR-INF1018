@@ -1,4 +1,6 @@
 Procedure main
 declare var : entier;
-var = 11;(
+declare test : reel;
+var = 11;
+test = 67 + 89;
 Fin_Procedure main

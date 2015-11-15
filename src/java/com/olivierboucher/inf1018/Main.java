@@ -4,6 +4,8 @@ import com.olivierboucher.inf1018.lexical.Lexer;
 import com.olivierboucher.inf1018.lexical.LexerException;
 import com.olivierboucher.inf1018.lexical.Token;
 import com.olivierboucher.inf1018.lexical.TokenType;
+import com.olivierboucher.inf1018.syntactical.Parser;
+import com.olivierboucher.inf1018.syntactical.ParserException;
 
 import java.io.File;
 import java.util.List;
@@ -36,23 +38,20 @@ public class Main {
         }
 
         //TODO(Olivier): Assert that we can read the file
-        if(!file.canRead()){
+        if(!file.canRead()) {
             System.out.println("File permissions does not allow reading.");
             System.exit(1);
         }
 
-        Lexer lexer = new Lexer(file);
-
-        //NOTE(Olivier): This is for debugging purposes
         try {
-            for(Token t = lexer.getNextToken(); t != null; t = lexer.getNextToken()){
-                if(t.type != TokenType.WHITESPACE) {
-                    System.out.println(t.toString());
-                }
-            }
+            Parser p = new Parser(file);
+            p.parse();
         }
         catch (LexerException e) {
-            System.out.println(String.format("Unexpected token from index %d to %d", e.getError().getStartIndex(), e.getError().getEndIndex()));
+            System.out.println(String.format("Lexer error : %s", e.getMessage()));
+        }
+        catch (ParserException e) {
+            System.out.println(String.format("Parser error: %s", e.getMessage()));
         }
     }
 }
