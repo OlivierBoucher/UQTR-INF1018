@@ -1,4 +1,4 @@
 Procedure main
 declare var : entier;
-var = 11;
+var = 11;(
 Fin_Procedure main

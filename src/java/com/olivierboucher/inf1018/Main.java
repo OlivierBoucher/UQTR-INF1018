@@ -1,6 +1,9 @@
 package com.olivierboucher.inf1018;
 
 import com.olivierboucher.inf1018.lexical.Lexer;
+import com.olivierboucher.inf1018.lexical.LexerException;
+import com.olivierboucher.inf1018.lexical.Token;
+import com.olivierboucher.inf1018.lexical.TokenType;
 
 import java.io.File;
 import java.util.List;
@@ -41,21 +44,15 @@ public class Main {
         Lexer lexer = new Lexer(file);
 
         //NOTE(Olivier): This is for debugging purposes
-        List<Lexer.Token> tokens = null;
         try {
-            tokens = lexer.getAllTokens()
-                    .stream()
-                    .filter((Lexer.Token t) -> t.type != Lexer.TokenType.WHITESPACE)
-                    .collect(Collectors.toList());
-
-            System.out.println(String.format("Got %d tokens", tokens.size()));
-
-            tokens.forEach(System.out::println);
-        }
-        catch (Lexer.LexerException e) {
-            for(Lexer.LexerError err : e.getErrors()) {
-                System.out.println(String.format("Unexpected token at index %d to %d", err.getStartIndex(), err.getEndIndex()));
+            for(Token t = lexer.getNextToken(); t != null; t = lexer.getNextToken()){
+                if(t.type != TokenType.WHITESPACE) {
+                    System.out.println(t.toString());
+                }
             }
+        }
+        catch (LexerException e) {
+            System.out.println(String.format("Unexpected token from index %d to %d", e.getError().getStartIndex(), e.getError().getEndIndex()));
         }
     }
 }
