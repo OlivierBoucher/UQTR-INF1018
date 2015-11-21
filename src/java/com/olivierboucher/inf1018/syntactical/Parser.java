@@ -4,8 +4,6 @@ import com.olivierboucher.inf1018.lexical.Lexer;
 import com.olivierboucher.inf1018.lexical.LexerException;
 import com.olivierboucher.inf1018.lexical.Token;
 import com.olivierboucher.inf1018.lexical.TokenType;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
-import com.sun.org.apache.xpath.internal.operations.Variable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -139,7 +137,7 @@ public class Parser {
             do {
                 procedure();
             }
-            while(currentToken != null && accept(TokenType.FUNC_START));
+            while(currentToken != null && (accept(TokenType.WHITESPACE) && accept(TokenType.FUNC_START)));
         }
         catch (NullPointerException e){
             throw new ParserException("Reached the end of the file but was expecting more");

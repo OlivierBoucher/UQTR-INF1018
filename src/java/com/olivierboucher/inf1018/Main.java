@@ -1,15 +1,10 @@
 package com.olivierboucher.inf1018;
 
-import com.olivierboucher.inf1018.lexical.Lexer;
 import com.olivierboucher.inf1018.lexical.LexerException;
-import com.olivierboucher.inf1018.lexical.Token;
-import com.olivierboucher.inf1018.lexical.TokenType;
 import com.olivierboucher.inf1018.syntactical.Parser;
 import com.olivierboucher.inf1018.syntactical.ParserException;
 
 import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by olivier on 2015-11-02.
