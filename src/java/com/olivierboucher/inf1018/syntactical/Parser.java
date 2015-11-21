@@ -8,6 +8,7 @@ import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 import com.sun.org.apache.xpath.internal.operations.Variable;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Created by olivier on 2015-11-15.
@@ -15,16 +16,17 @@ import java.io.File;
 public class Parser {
     private Lexer lexer;
     private Token currentToken;
+    private Token previousToken;
+    private String currentProcedureId = "";
+    private ArrayList<String> declaredVariables = new ArrayList<>();
 
     public Parser(File file) {
         lexer = new Lexer(file);
     }
 
     private void nextToken() throws LexerException, ParserException {
+        previousToken = currentToken;
         currentToken = lexer.getNextToken();
-        if(currentToken == null){
-            throw new ParserException("Reached the end of the file but was expecting more.");
-        }
     }
 
     private boolean accept(TokenType t) throws LexerException, ParserException {
@@ -42,24 +44,36 @@ public class Parser {
     }
 
     private void procedure() throws LexerException, ParserException {
-        expect(TokenType.FUNC_START);
+        expect(TokenType.WHITESPACE);
         expect(TokenType.IDENTIFICATOR);
+        currentProcedureId = previousToken.data;
+        expect(TokenType.WHITESPACE);
         declarations();
         affectations();
         expect(TokenType.IDENTIFICATOR);
+        //Semantic rule
+        if(!previousToken.data.equals(currentProcedureId)){
+            throw new ParserException("Procedure id does not match declaration.");
+        }
     }
 
     private void declarations() throws LexerException, ParserException {
         while(accept(TokenType.DECLARATION_START)){
+            accept(TokenType.WHITESPACE);
             declaration();
             expect(TokenType.SEMICOLON);
+            accept(TokenType.WHITESPACE);
         }
     }
 
     private void declaration() throws LexerException, ParserException {
         variable();
+        declaredVariables.add(previousToken.data); //Keep track of declared variables
+        accept(TokenType.WHITESPACE);
         expect(TokenType.COLON);
+        accept(TokenType.WHITESPACE);
         type();
+        accept(TokenType.WHITESPACE);
     }
 
     private void variable() throws LexerException, ParserException {
@@ -74,13 +88,19 @@ public class Parser {
         do{
             affectation();
         }
-        while(accept(TokenType.SEMICOLON) && !accept(TokenType.FUNC_END));
-
+        while(accept(TokenType.SEMICOLON) && (accept(TokenType.WHITESPACE) && !accept(TokenType.FUNC_END)));
+        accept(TokenType.WHITESPACE);
     }
 
     private void affectation() throws LexerException, ParserException {
+        accept(TokenType.WHITESPACE);
         variable();
+        if(!declaredVariables.contains(previousToken.data)){
+            throw new ParserException(String.format("\"%s\" was not declared prior to usage.", previousToken.data));
+        }
+        accept(TokenType.WHITESPACE);
         expect(TokenType.AFFECTATION);
+        accept(TokenType.WHITESPACE);
         exprArithm();
     }
 
@@ -99,19 +119,30 @@ public class Parser {
     }
 
     private void facteur() throws LexerException, ParserException {
+        accept(TokenType.WHITESPACE);
         if(accept(TokenType.IDENTIFICATOR)){
+            accept(TokenType.WHITESPACE);
             return;
         }
 
         if(accept(TokenType.NUMBER)){
+            accept(TokenType.WHITESPACE);
             return;
         }
-
         exprArithm();
     }
 
     public void parse() throws ParserException, LexerException {
         nextToken();
-        procedure();
+        try {
+            accept(TokenType.FUNC_START);
+            do {
+                procedure();
+            }
+            while(currentToken != null && accept(TokenType.FUNC_START));
+        }
+        catch (NullPointerException e){
+            throw new ParserException("Reached the end of the file but was expecting more");
+        }
     }
 }
