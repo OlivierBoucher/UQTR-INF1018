@@ -1,15 +1,18 @@
-Pour votre santé mentale, j'ai précompilé le programme dans l'éxécutable nommé devoir2.jar
+# INF1018 - Program analysis
+### Homework 2
 
-UTILISATION:
+For your mental sanity, I precompiled the program to devoir2.jar
 
-java -jar devoir2.jar <path fichier>
+#### USAGE:
 
-Ex: java -jar devoir2.jar resources/program1.txt
+```java -jar devoir2.jar <file path>```
 
-COMPILATION:
+Ex: ```java -jar devoir2.jar resources/program1.txt```
 
-Le projet utilise Gradle comme build manager. La tâche fatjar est configurée pour produire un exécutable bootstrapé
+#### BUILDING:
 
-Ex: gradle fatJar
+This project uses Gradle. The task fatJar is configured to generate the executable program.
 
-Le jar se trouvera ensuite dans build/libs
+Ex: ```gradle fatJar```
+
+The jar file can then be found within build/libs
