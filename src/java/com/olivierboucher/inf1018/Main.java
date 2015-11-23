@@ -41,6 +41,7 @@ public class Main {
         try {
             Parser p = new Parser(file);
             p.parse();
+            System.out.println("Program is valid");
         }
         catch (LexerException e) {
             System.out.println(String.format("Lexer error : %s", e.getMessage()));
